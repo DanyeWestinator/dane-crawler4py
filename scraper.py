@@ -1,9 +1,22 @@
 import re
 from urllib.parse import urlparse
+from bs4 import BeautifulSoup
+
+valid_urls = set()
 
 def scraper(url, resp):
     links = extract_next_links(url, resp)
     return [link for link in links if is_valid(link)]
+
+#cleans the link, gets it ready to be checked for validity
+def clean_link(link, url):
+    #If link is to subdomain
+    if link.startswith("/") and link != "/" and "www" not in link:
+        link = url + link
+    #Regex to cut 
+    link = re.sub(r"(?(?=.+_))#.+", "", link)
+    link = link.strip()
+    return link
 
 def extract_next_links(url, resp):
     # Implementation required.
@@ -15,7 +28,36 @@ def extract_next_links(url, resp):
     #         resp.raw_response.url: the url, again
     #         resp.raw_response.content: the content of the page!
     # Return a list with the hyperlinks (as strings) scrapped from resp.raw_response.content
+    links = []
+    #quit for non 200 status urls
+    if resp.status != 200:
+        return links
+    #ignore empty pages
+    if resp.raw_response == None:
+        return links
+    print(f"Checking {url} for valid links")
+    html = resp.raw_response.content
+    soup = BeautifulSoup(html, 'html.parser')
+    out = f"\nTitle: {soup.title.string}\n"
+    for a in soup.find_all('a'):
+        link = a.get('href')
+        link = clean_link(link, url)
+       
+        #ignore invalid links or empty links
+        if is_valid(link) == False or link == "":
+            continue
+        #Skip the link we are currently on
+        if link.startswith("/") and link == "/":
+            continue
+        #out += f"\t{link}\n"
+        links.append(link)
+    for link in links[:10]:
+        out += f"\t{link}\n"
+    print(out)
+    #EMPTY RETURN, DON'T RECURSE!!
     return list()
+    #return links
+
 
 def is_valid(url):
     # Decide whether to crawl this url or not. 
@@ -23,9 +65,16 @@ def is_valid(url):
     # There are already some conditions that return False.
     try:
         parsed = urlparse(url)
-        if parsed.scheme not in set(["http", "https"]):
+        global valid_urls
+        #Links we've already checked are not valid
+        if url in valid_urls:
+            print(f"Ignoring {url} because we already saw it")
             return False
-        return not re.match(
+        if "mailto" in url:
+            return False
+        if url.startswith("#"):
+            return False
+        extension_valid = not re.match(
             r".*\.(css|js|bmp|gif|jpe?g|ico"
             + r"|png|tiff?|mid|mp2|mp3|mp4"
             + r"|wav|avi|mov|mpeg|ram|m4v|mkv|ogg|ogv|pdf"
@@ -34,6 +83,11 @@ def is_valid(url):
             + r"|epub|dll|cnf|tgz|sha1"
             + r"|thmx|mso|arff|rtf|jar|csv"
             + r"|rm|smil|wmv|swf|wma|zip|rar|gz)$", parsed.path.lower())
+        if extension_valid:
+            valid_urls.add(url)
+        else:
+            print(f"Ignoring {url} because extension was invalid")
+        return extension_valid
 
     except TypeError:
         print ("TypeError for ", parsed)

@@ -6,7 +6,17 @@ from utils.config import Config
 from crawler import Crawler
 
 
+import os
+
+
+
 def main(config_file, restart):
+    #DANE ADDITION, NUKES OLD SAVES dane-crawler4py/frontier.shelve.dir
+    if restart == True and os.path.exists("/home/ics-home/dane-crawler4py/frontier.shelve.bak"):
+        print("NUKING old stuff")
+        os.remove("/home/ics-home/dane-crawler4py/frontier.shelve.bak")
+        os.remove("/home/ics-home/dane-crawler4py/frontier.shelve.dat")
+        os.remove("/home/ics-home/dane-crawler4py/frontier.shelve.dir")
     cparser = ConfigParser()
     cparser.read(config_file)
     config = Config(cparser)
