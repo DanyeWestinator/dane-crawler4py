@@ -7,7 +7,14 @@ valid_urls = set()
 freqs = {}
 
 #gets the stopwords
-stopwords = set(open("stopwords.txt", "r").read().split("\n"))
+tokenChars = "[ .,'\"\[\]{}?!\n\t\r()-*:;#/\_\-\$%^&`~<>+=\“\’\”\‘]+"
+stopwords = set()
+for word in open("stopwords.txt", "r").readlines():
+    # have to split stopwords based on the same token logic
+    words = set(re.split(tokenChars, word))
+    stopwords = words.union(stopwords)
+stopwords.remove("")
+
 
 def scraper(url, resp):
     print(stopwords)
@@ -117,7 +124,7 @@ def addWord(word):
 
 
 def tokenizePage(text):
-    tokenChars = "[ .,'\"\[\]{}?!\n\t\r()-*:;#/\_\-\$%^&`~<>+=\“\’\”\‘]+"
+    global tokenChars
     # Gross to be reading over the entire webpage as one object in memory
     # However, it is already stored as a string inside the soup get_text() attribute
 
