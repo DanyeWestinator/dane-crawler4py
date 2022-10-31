@@ -7,7 +7,7 @@ valid_urls = set()
 freqs = {}
 
 #gets the stopwords
-stopwords = set(open("stopwords.txt", "r").readlines())
+stopwords = set(open("stopwords.txt", "r").read().split("\n"))
 
 def scraper(url, resp):
     print(stopwords)
