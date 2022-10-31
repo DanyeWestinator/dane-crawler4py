@@ -6,9 +6,12 @@ from PartA import tokenize, computeWordFrequencies
 valid_urls = set()
 freqs = {}
 
-
+#gets the stopwords
+stopwords = set(open("stopwords.txt", "r").readlines())
 
 def scraper(url, resp):
+    print(stopwords)
+    return []
     links = extract_next_links(url, resp)
     return [link for link in links if is_valid(link)]
 
