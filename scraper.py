@@ -22,8 +22,9 @@ def scraper(url, resp):
     global freqs
     global MAX_LEN
     print(f"Frequencies for {url}. Longest page had {MAX_LEN}")
-    for word in sorted(freqs.items(), key=lambda x: x[1], reverse=True)[:25]:
-        print(word[0], word[1])
+    for word in sorted(freqs.items(), key=lambda x: x[1], reverse=True)[:10]:
+        print(word[0], word[1], end="\t")
+    print("\n")
     return [link for link in links if is_valid(link)]
 
 
@@ -55,10 +56,9 @@ def extract_next_links(url, resp):
     # ignore empty pages
     if resp.raw_response == None:
         return links
-    print(f"Checking {url} for valid links")
+    #print(f"Checking {url} for valid links")
     html = resp.raw_response.content
     soup = BeautifulSoup(html, 'html.parser')
-    out = f"\nTitle: {soup.title.string}\n"
     # handle the links
     for a in soup.find_all('a'):
         link = a.get('href')
@@ -72,8 +72,7 @@ def extract_next_links(url, resp):
             continue
         links.append(link)
 
-    for link in links[:10]:
-        out += f"\t{link}\n"
+    print(f"Found {len(links)} on {url}")
     text = soup.get_text()
     tokenizePage(text)
     global MAX_LEN
