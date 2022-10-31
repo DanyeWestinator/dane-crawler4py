@@ -25,7 +25,9 @@ def scraper(url, resp):
     for word in sorted(freqs.items(), key=lambda x: x[1], reverse=True)[:10]:
         print(word[0], word[1], end="\t")
     print("\n")
-    return [link for link in links if is_valid(link)]
+    # only valid links get passed,
+    # makes more sense to only add valid links to the list in the first place
+    return links
 
 
 # cleans the link, gets it ready to be checked for validity
@@ -72,7 +74,7 @@ def extract_next_links(url, resp):
             continue
         links.append(link)
 
-    print(f"Found {len(links)} on {url}")
+    print(f"Found {len(links)} links on {url}")
     text = soup.get_text()
     tokenizePage(text)
     global MAX_LEN
