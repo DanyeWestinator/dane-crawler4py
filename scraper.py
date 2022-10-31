@@ -32,6 +32,8 @@ def scraper(url, resp):
 
 # cleans the link, gets it ready to be checked for validity
 def clean_link(link, url):
+    if link == None or link.strip == "":
+        return ""
     # If link is to subdomain
     if link.startswith("/") and link != "/" and "www" not in link:
         link = url + link
