@@ -37,7 +37,7 @@ def clean_link(link, url):
     # If link is to subdomain
     if link.startswith("/") and link != "/":
         # And don't recursively add things we already have
-        if link not in url and "www" not in link:
+        if url.replace("/", "").endswith(link.replace("/", "")) and "www" not in link:
             link = url + link
     # Regex to cut
     link = re.sub(r"(?=.+)#.+", "", link)
