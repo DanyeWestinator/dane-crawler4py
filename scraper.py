@@ -38,7 +38,14 @@ def clean_link(link, url):
     if link.startswith("/") and link != "/":
         # And don't recursively add things we already have
         if url.replace("/", "").endswith(link.replace("/", "")) and "www" not in link:
-            link = url + link
+            pass
+            #link = url + link
+        else:
+            pass
+            #print("Link wasn't recursive? ", link, url)
+    else:
+        pass
+        #print("Link wasn't fragment? ", link, url)
     # Regex to cut
     link = re.sub(r"(?=.+)#.+", "", link)
     link = link.strip()
