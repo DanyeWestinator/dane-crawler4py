@@ -6,7 +6,7 @@ from PartA import tokenize, computeWordFrequencies
 valid_urls = set()
 freqs = {}
 MAX_LEN = -1
-
+scraped = 0
 #gets the stopwords
 tokenChars = "[ .,'\"\[\]{}?!\n\t\r()-*:;#/\_\-\$%^&`~<>+=\“\’\”\‘]+"
 stopwords = set()
@@ -21,7 +21,9 @@ def scraper(url, resp):
     links = extract_next_links(url, resp)
     global freqs
     global MAX_LEN
-    print(f"Frequencies for {url}. Longest page had {MAX_LEN}")
+    global scraped
+    
+    print(f"Frequencies for {url}. Longest page had {MAX_LEN}. Now scraped {scraped} pages")
     for word in sorted(freqs.items(), key=lambda x: x[1], reverse=True)[:10]:
         print(word[0], word[1], end="\t")
     print("\n")
@@ -32,20 +34,34 @@ def scraper(url, resp):
 
 # cleans the link, gets it ready to be checked for validity
 def clean_link(link, url):
-    if link == None or link.strip == "":
+    if link == None or link.strip() == "":
         return ""
     parsed = None
     try:
         parsed = urlparse(url)
     except TypeError:
         print("Ignoring failed parse of ", url)
+    
+    #if link points to an external site
+    invalid = ["http", "www", ".edu", ".com"]
+    notlink = True
+    for i in invalid:
+        if i in link:
+            notlink = False
+               
     # If link is to subdomain AND not just to the current page
-    if link.startswith("/") and link != "/":
+    if link.startswith("/") and link != "/" and notlink:
+        #print(f"Subdomain, adding {link} to {parsed.netloc}")
         link = parsed.netloc + link
-
+    #if the first character is a letter
+    elif link[0].isalpha() and notlink:
+        #print(f"First char was letter, adding {link} to {parsed.netloc}")
+        link = parsed.netloc + "/" + link
+    link = link[:2].replace("/", "") + link[2:]
     # Regex to cut
     link = re.sub(r"(?=.+)#.+", "", link)
     link = link.strip()
+    #print("Cleaned link to", link)
     return link
 
 
@@ -91,6 +107,9 @@ def extract_next_links(url, resp):
         MAX_LEN = length
     # EMPTY RETURN, DON'T RECURSE!!
     #return list()
+    #only add when we know it was scraped successfully
+    global scraped
+    scraped += 1
     return links
 
 

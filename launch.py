@@ -12,11 +12,15 @@ import os
 
 def main(config_file, restart):
     #DANE ADDITION, NUKES OLD SAVES dane-crawler4py/frontier.shelve.dir
-    if restart == True and os.path.exists("/home/ics-home/dane-crawler4py/frontier.shelve.bak"):
+    if restart == True:
         print("NUKING old stuff")
-        os.remove("/home/ics-home/dane-crawler4py/frontier.shelve.bak")
-        os.remove("/home/ics-home/dane-crawler4py/frontier.shelve.dat")
-        os.remove("/home/ics-home/dane-crawler4py/frontier.shelve.dir")
+        
+        if os.path.exists("/home/ics-home/dane-crawler4py/frontier.shelve.bak"):
+            os.remove("/home/ics-home/dane-crawler4py/frontier.shelve.bak")
+        if os.path.exists("/home/ics-home/dane-crawler4py/frontier.shelve.dat"):
+            os.remove("/home/ics-home/dane-crawler4py/frontier.shelve.dat")
+        if os.path.exists("/home/ics-home/dane-crawler4py/frontier.shelve.dir"):
+            os.remove("/home/ics-home/dane-crawler4py/frontier.shelve.dir")
 
         #reset the urls and words txt files
         f = open("urls.txt", "w")
