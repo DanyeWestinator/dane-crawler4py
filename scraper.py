@@ -34,18 +34,13 @@ def scraper(url, resp):
 def clean_link(link, url):
     if link == None or link.strip == "":
         return ""
-    # If link is to subdomain
+    # If link is to subdomain AND not just to the current page
     if link.startswith("/") and link != "/":
-        # And don't recursively add things we already have
-        if url.replace("/", "").endswith(link.replace("/", "")) and "www" not in link:
-            pass
-            #link = url + link
-        else:
-            pass
-            #print("Link wasn't recursive? ", link, url)
-    else:
-        pass
-        #print("Link wasn't fragment? ", link, url)
+        # If the sublink isn't already in the url, and the sublink doesn't have www
+        if link.replace("/", "") not in url.replace("/", "") and "www" not in link:
+            print(f"Adding {link} to {url}")
+            link = url + link
+
     # Regex to cut
     link = re.sub(r"(?=.+)#.+", "", link)
     link = link.strip()
