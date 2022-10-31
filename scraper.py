@@ -1,22 +1,28 @@
 import re
 from urllib.parse import urlparse
 from bs4 import BeautifulSoup
+from PartA import tokenize, computeWordFrequencies
 
 valid_urls = set()
+freqs = {}
+
+
 
 def scraper(url, resp):
     links = extract_next_links(url, resp)
     return [link for link in links if is_valid(link)]
 
-#cleans the link, gets it ready to be checked for validity
+
+# cleans the link, gets it ready to be checked for validity
 def clean_link(link, url):
-    #If link is to subdomain
+    # If link is to subdomain
     if link.startswith("/") and link != "/" and "www" not in link:
         link = url + link
-    #Regex to cut 
+    # Regex to cut
     link = re.sub(r"(?(?=.+_))#.+", "", link)
     link = link.strip()
     return link
+
 
 def extract_next_links(url, resp):
     # Implementation required.
@@ -29,36 +35,40 @@ def extract_next_links(url, resp):
     #         resp.raw_response.content: the content of the page!
     # Return a list with the hyperlinks (as strings) scrapped from resp.raw_response.content
     links = []
-    #quit for non 200 status urls
+    # quit for non 200 status urls
     if resp.status != 200:
         return links
-    #ignore empty pages
+    # ignore empty pages
     if resp.raw_response == None:
         return links
     print(f"Checking {url} for valid links")
     html = resp.raw_response.content
     soup = BeautifulSoup(html, 'html.parser')
     out = f"\nTitle: {soup.title.string}\n"
+    # handle the links
     for a in soup.find_all('a'):
         link = a.get('href')
         link = clean_link(link, url)
-       
-        #ignore invalid links or empty links
+
+        # ignore invalid links or empty links
         if is_valid(link) == False or link == "":
             continue
-        #Skip the link we are currently on
+        # Skip the link we are currently on
         if link.startswith("/") and link == "/":
             continue
-        #out += f"\t{link}\n"
         links.append(link)
+
     for link in links[:10]:
         out += f"\t{link}\n"
+    text = soup.get_text()
+    tokens = tokenize()
     print(out)
-    #EMPTY RETURN, DON'T RECURSE!!
+    # EMPTY RETURN, DON'T RECURSE!!
     return list()
-    #return links
+    return links
 
 
+# Determines if a link is valid to be crawled
 def is_valid(url):
     # Decide whether to crawl this url or not. 
     # If you decide to crawl it, return True; otherwise return False.
@@ -66,7 +76,7 @@ def is_valid(url):
     try:
         parsed = urlparse(url)
         global valid_urls
-        #Links we've already checked are not valid
+        # Links we've already checked are not valid
         if url in valid_urls:
             print(f"Ignoring {url} because we already saw it")
             return False
@@ -90,5 +100,26 @@ def is_valid(url):
         return extension_valid
 
     except TypeError:
-        print ("TypeError for ", parsed)
+        print("TypeError for ", parsed)
         raise
+
+
+# adds a word to the global frequencies dict
+def addWord(word):
+    global freqs
+    if word in freqs.keys():
+        freqs[word] += 1
+    else:
+        freqs[word] = 1
+
+
+def tokenizePage(text):
+    tokenChars = "[ .,'\"\[\]{}?!\n\t\r()-*:;#/\_\-\$%^&`~<>+=\“\’\”\‘]+"
+    # Gross to be reading over the entire webpage as one object in memory
+    # However, it is already stored as a string inside the soup get_text() attribute
+
+    for token in re.split(tokenChars, text):
+        if token.strip() == "":
+            continue
+        token = token.lower()
+        #tokens.append(token)
