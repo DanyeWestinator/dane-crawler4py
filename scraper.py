@@ -5,6 +5,7 @@ from PartA import tokenize, computeWordFrequencies
 
 valid_urls = set()
 freqs = {}
+MAX_LEN = -1
 
 #gets the stopwords
 tokenChars = "[ .,'\"\[\]{}?!\n\t\r()-*:;#/\_\-\$%^&`~<>+=\“\’\”\‘]+"
@@ -17,9 +18,12 @@ stopwords.remove("")
 
 
 def scraper(url, resp):
-    print(stopwords)
-    return []
     links = extract_next_links(url, resp)
+    global freqs
+    global MAX_LEN
+    print(f"Frequencies for {url}. Longest page had {MAX_LEN}")
+    for word in sorted(freqs.items(), key=lambda x: x[1], reverse=True)[:25]:
+        print(word[0], word[1])
     return [link for link in links if is_valid(link)]
 
 
@@ -71,8 +75,11 @@ def extract_next_links(url, resp):
     for link in links[:10]:
         out += f"\t{link}\n"
     text = soup.get_text()
-    tokens = tokenize()
-    print(out)
+    tokenizePage(text)
+    global MAX_LEN
+    length = len(text.split(" "))
+    if length > MAX_LEN:
+        MAX_LEN = length
     # EMPTY RETURN, DON'T RECURSE!!
     return list()
     return links
@@ -88,7 +95,7 @@ def is_valid(url):
         global valid_urls
         # Links we've already checked are not valid
         if url in valid_urls:
-            print(f"Ignoring {url} because we already saw it")
+            #print(f"Ignoring {url} because we already saw it")
             return False
         if "mailto" in url:
             return False
@@ -106,7 +113,8 @@ def is_valid(url):
         if extension_valid:
             valid_urls.add(url)
         else:
-            print(f"Ignoring {url} because extension was invalid")
+            pass
+            #print(f"Ignoring {url} because extension was invalid")
         return extension_valid
 
     except TypeError:
@@ -125,11 +133,20 @@ def addWord(word):
 
 def tokenizePage(text):
     global tokenChars
+    global stopwords
     # Gross to be reading over the entire webpage as one object in memory
     # However, it is already stored as a string inside the soup get_text() attribute
-
     for token in re.split(tokenChars, text):
+        # Skip empty tokens
+        token = token.lower()
         if token.strip() == "":
             continue
-        token = token.lower()
-        #tokens.append(token)
+        # Skip stopwords
+        if token in stopwords:
+            continue
+        addWord(token)
+
+#Updates the url list and word freq list
+def updateLogs():
+    f = open("urls.txt", "w")
+    pass

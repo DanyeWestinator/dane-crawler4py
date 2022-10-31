@@ -17,6 +17,15 @@ def main(config_file, restart):
         os.remove("/home/ics-home/dane-crawler4py/frontier.shelve.bak")
         os.remove("/home/ics-home/dane-crawler4py/frontier.shelve.dat")
         os.remove("/home/ics-home/dane-crawler4py/frontier.shelve.dir")
+
+        #reset the urls and words txt files
+        f = open("urls.txt", "w")
+        f.write("")
+        f.close()
+        f = open("word_freqs.txt", "w")
+        f.write("")
+        f.close()
+
     cparser = ConfigParser()
     cparser.read(config_file)
     config = Config(cparser)
