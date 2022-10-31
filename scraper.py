@@ -34,12 +34,14 @@ def scraper(url, resp):
 def clean_link(link, url):
     if link == None or link.strip == "":
         return ""
+    parsed = None
+    try:
+        parsed = urlparse(url)
+    except TypeError:
+        print("Ignoring failed parse of ", url)
     # If link is to subdomain AND not just to the current page
     if link.startswith("/") and link != "/":
-        # If the sublink isn't already in the url, and the sublink doesn't have www
-        if link.replace("/", "") not in url.replace("/", "") and "www" not in link:
-            print(f"Adding {link} to {url}")
-            link = url + link
+        link = parsed.netloc + link
 
     # Regex to cut
     link = re.sub(r"(?=.+)#.+", "", link)
