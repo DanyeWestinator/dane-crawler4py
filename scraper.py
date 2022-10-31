@@ -67,7 +67,7 @@ def extract_next_links(url, resp):
         link = clean_link(link, url)
 
         # ignore invalid links or empty links
-        if is_valid(link) == False or link == "":
+        if is_valid(link) == False or link == "" or link == None:
             continue
         # Skip the link we are currently on
         if link.startswith("/") and link == "/":
