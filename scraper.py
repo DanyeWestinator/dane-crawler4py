@@ -81,7 +81,7 @@ def extract_next_links(url, resp):
     if length > MAX_LEN:
         MAX_LEN = length
     # EMPTY RETURN, DON'T RECURSE!!
-    return list()
+    #return list()
     return links
 
 
