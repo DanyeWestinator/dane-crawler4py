@@ -33,7 +33,7 @@ def clean_link(link, url):
     if link.startswith("/") and link != "/" and "www" not in link:
         link = url + link
     # Regex to cut
-    link = re.sub(r"(?(?=.+_))#.+", "", link)
+    link = re.sub(r"(?=.+)#.+", "", link)
     link = link.strip()
     return link
 
