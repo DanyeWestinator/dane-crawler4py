@@ -1,7 +1,7 @@
 import re
 from urllib.parse import urlparse
 from bs4 import BeautifulSoup
-from launch import config_cache
+
 
 valid_urls = set()
 freqs = {}
@@ -152,6 +152,9 @@ def handle_status(url : str, status : int):
         err_urls[root][0] += 1
         ratio = float(err_urls[root][0]) / float(err_urls[root][1])
         global blacklisted
+        
+        # HAVE to put this here or it causes a circular dependency issue
+        from launch import config_cache
         # if there were enough urls scraped from that root
         thresh_met = config_cache["CRAWLER"]["BLACKLIST_COUNT_THRESHOLD"] > err_urls[root][1]
         ratio_thresh = float(config_cache["CRAWLER"]["BLACKLIST_RATIO"])
