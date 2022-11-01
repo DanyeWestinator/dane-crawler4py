@@ -8,7 +8,7 @@ from crawler import Crawler
 
 import os
 
-
+config = None
 
 def main(config_file, restart):
     #DANE ADDITION, NUKES OLD SAVES dane-crawler4py/frontier.shelve.dir
@@ -32,6 +32,7 @@ def main(config_file, restart):
 
     cparser = ConfigParser()
     cparser.read(config_file)
+    global config
     config = Config(cparser)
     config.cache_server = get_cache_server(config, restart)
     crawler = Crawler(config, restart)
