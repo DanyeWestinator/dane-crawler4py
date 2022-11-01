@@ -9,7 +9,7 @@ MAX_LEN = -1
 scraped = 0
 total = 0
 # gets the stopwords
-tokenChars = "[ .,'\"\[\]{}?!\n\t\r()-*:;#/\_\-\$%^&`~<>+=\“\’\”\‘]+"
+tokenChars = "[ .,'\"\[\]{}?|!\n\t\r()-*:;#/\_\-\$%^&`~<>+=\“\’\”\‘]+"
 stopwords = set()
 for word in open("stopwords.txt", "r").readlines():
     # have to split stopwords based on the same token logic
@@ -138,6 +138,11 @@ def handle_status(url : str, status : int):
     except TypeError:
         return
     root = parsed.netloc
+    #never block these 4 roots, or any sub domain
+    whitelist = {"ics.uci.edu", "cs.uci.edu", "informatics.uci.edu", "stat.uci.edu"}
+    for white in whitelist:
+        if white in root:
+            return
     global err_urls
     if root not in err_urls.keys():
         # Init to 0 600 codes thrown, 0 pages visited
@@ -151,14 +156,17 @@ def handle_status(url : str, status : int):
         ratio = float(err_urls[root][0]) / float(err_urls[root][1])
         global blacklisted
         
-        # HAVE to put this here or it causes a circular dependency issue
-        from launch import config_cache
         # if there were enough urls scraped from that root
-        thresh_met = config_cache["CRAWLER"]["BLACKLIST_COUNT_THRESHOLD"] > err_urls[root][1]
-        ratio_thresh = float(config_cache["CRAWLER"]["BLACKLIST_RATIO"])
+        # Min number of times to check a domain
+        THRESHOLD = 50
+        # Min % of items that can return a 600 code
+        RATIO = .75
+        thresh_met = THRESHOLD > err_urls[root][1]
+        
         # if the ratio goes over the threshold, AND there were more than 50
         # add to blacklist
-        if ratio >= ratio_thresh and thresh_met and root not in blacklisted:
+        if ratio >= RATIO and thresh_met and root not in blacklisted:
+            print(f"\n\n\n{'-' * 7}\nADDED {root} TO BLACKLIST\n{'-' * 7}\n\n")
             #Add to the blacklist, and update the source
             blacklisted.add(root)
             f = open("blacklist.txt", "w")
