@@ -27,8 +27,6 @@ f = open("blacklist.txt", "r")
 blacklisted = [i for i in f.read().split("\n") if i.strip() != ""]
 blacklisted = set(blacklisted)
 f.close()
-print(blacklisted)
-
 
 def scraper(url, resp):
     links = extract_next_links(url, resp)
@@ -143,7 +141,7 @@ def handle_status(url : str, status : int):
     global err_urls
     if root not in err_urls.keys():
         # Init to 0 600 codes thrown, 0 pages visited
-        err_urls[root] = (0, 0)
+        err_urls[root] = [0, 0]
     # always increase visited by 1
     err_urls[root][1] += 1
     # if the status starts with 600
