@@ -121,11 +121,15 @@ def extract_next_links(url, resp):
     length = len(text.split(" "))
     if length > MAX_LEN:
         MAX_LEN = length
-    # EMPTY RETURN, DON'T RECURSE!!
-    # return list()
+
     # only add when we know it was scraped successfully
     global scraped
+    global valid_urls
+    if url not in valid_urls:
+        valid_urls.add(url)
     scraped += 1
+    #then update the logs
+    updateLogs()
     return links
 
 
@@ -166,7 +170,7 @@ def handle_status(url : str, status : int):
         # if the ratio goes over the threshold, AND there were more than 50
         # add to blacklist
         if ratio >= RATIO and thresh_met and root not in blacklisted:
-            print(f"\n\n\n{'-' * 7}\nADDED {root} TO BLACKLIST\n{'-' * 7}\n\n")
+            print(f"\n\n\n{'-' * 7}\nADDED {root} TO BLACKLIST with ratio of {ratio} and {err_urls[root][1]} total\n{'-' * 7}\n\n")
             #Add to the blacklist, and update the source
             blacklisted.add(root)
             f = open("blacklist.txt", "w")
@@ -245,5 +249,18 @@ def tokenizePage(text):
 
 # Updates the url list and word freq list
 def updateLogs():
+    global freqs
+    global valid_urls
+    global MAX_LEN
+    stats = f"Max length: {MAX_LEN}\n\n"
+    for word in sorted(freqs.items(), key=lambda x: x[1], reverse=True)[:50]:
+        stats += f"{word[0]}: {word[1]}\n"
+    f = open("word_freqs.txt", "w")
+    f.write(stats)
+    f.close()
     f = open("urls.txt", "w")
-    pass
+    s = ""
+    for url in sorted(valid_urls):
+        s += url + "\n"
+    f.write(s)
+    f.close()
