@@ -159,10 +159,10 @@ def handle_status(url : str, status : int):
         
         # if there were enough urls scraped from that root
         # Min number of times to check a domain
-        THRESHOLD = 50
+        THRESHOLD = 5
         # Min % of items that can return a 600 code
         RATIO = .75
-        thresh_met = THRESHOLD > err_urls[root][1]
+        thresh_met = THRESHOLD < err_urls[root][1]
         
         # if the ratio goes over the threshold, AND there were more than 50
         # add to blacklist
@@ -233,8 +233,8 @@ def tokenizePage(text):
     # However, it is already stored as a string inside the soup get_text() attribute
     for token in re.split(tokenChars, text):
         # Skip empty tokens
-        token = token.lower()
-        if token.strip() == "":
+        token = token.lower().strip()
+        if token == "" or len(token) == 1:
             continue
         # Skip stopwords
         if token in stopwords:
@@ -252,7 +252,7 @@ def updateLogs():
     stats = f"Max length: {MAX_LEN}\n"
     stats += f"Scraped {scraped} pages, visited a total of {total} pages\n"
     i = 1
-    for word in sorted(freqs.items(), key=lambda x: x[1], reverse=True)[:75]:
+    for word in sorted(freqs.items(), key=lambda x: x[1], reverse=True)[:150]:
         stats += f"{i}. {word[0]}: {word[1]}\n"
         i += 1
     f = open("word_freqs.txt", "w")
