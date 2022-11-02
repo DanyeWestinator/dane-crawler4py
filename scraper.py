@@ -53,7 +53,8 @@ def clean_link(link, url):
     try:
         parsed = urlparse(url)
     except TypeError:
-        print("Ignoring failed parse of ", url)
+        pass
+        #print("Ignoring failed parse of ", url)
 
     # if link points to an external site
     invalid = ["http", "www", ".edu", ".com"]
@@ -64,17 +65,14 @@ def clean_link(link, url):
 
     # If link is to subdomain AND not just to the current page
     if link.startswith("/") and link != "/" and notlink:
-        # print(f"Subdomain, adding {link} to {parsed.netloc}")
         link = parsed.netloc + link
     # if the first character is a letter
     elif link[0].isalpha() and notlink:
-        # print(f"First char was letter, adding {link} to {parsed.netloc}")
         link = parsed.netloc + "/" + link
     link = link[:2].replace("/", "") + link[2:]
     # Regex to cut
     link = re.sub(r"(?=.+)#.+", "", link)
     link = link.strip()
-    # print("Cleaned link to", link)
     return link
 
 
@@ -98,7 +96,6 @@ def extract_next_links(url, resp):
     # ignore empty pages
     if resp.raw_response == None:
         return links
-    # print(f"Checking {url} for valid links")
     html = resp.raw_response.content
     soup = BeautifulSoup(html, 'html.parser')
     # handle the links
@@ -212,13 +209,11 @@ def is_valid(url):
             + r"|epub|dll|cnf|tgz|sha1"
             + r"|thmx|mso|arff|rtf|jar|csv"
             + r"|rm|smil|wmv|swf|wma|zip|rar|gz)$", parsed.path.lower())
-        if extension_valid:
-            valid_urls.add(url)
+
 
         return extension_valid
 
     except TypeError:
-        print("TypeError for ", parsed)
         raise
 
 
@@ -255,7 +250,7 @@ def updateLogs():
     global scraped
     global total
     stats = f"Max length: {MAX_LEN}\n"
-    stats += "Scraped {scraped} pages, visited a total of {total} pages\n"
+    stats += f"Scraped {scraped} pages, visited a total of {total} pages\n"
     i = 1
     for word in sorted(freqs.items(), key=lambda x: x[1], reverse=True)[:75]:
         stats += f"{i}. {word[0]}: {word[1]}\n"
