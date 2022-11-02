@@ -252,9 +252,14 @@ def updateLogs():
     global freqs
     global valid_urls
     global MAX_LEN
-    stats = f"Max length: {MAX_LEN}\n\n"
-    for word in sorted(freqs.items(), key=lambda x: x[1], reverse=True)[:50]:
-        stats += f"{word[0]}: {word[1]}\n"
+    global scraped
+    global total
+    stats = f"Max length: {MAX_LEN}\n"
+    stats += "Scraped {scraped} pages, visited a total of {total} pages\n"
+    i = 1
+    for word in sorted(freqs.items(), key=lambda x: x[1], reverse=True)[:75]:
+        stats += f"{i}. {word[0]}: {word[1]}\n"
+        i += 1
     f = open("word_freqs.txt", "w")
     f.write(stats)
     f.close()
