@@ -2,10 +2,10 @@ import re
 from urllib.parse import urlparse
 from bs4 import BeautifulSoup
 
-
 valid_urls = set()
 freqs = {}
 MAX_LEN = -1
+longest = []
 scraped = 0
 total = 0
 # gets the stopwords
@@ -116,8 +116,11 @@ def extract_next_links(url, resp):
     tokenizePage(text)
     global MAX_LEN
     length = len(text.split(" "))
-    if length > MAX_LEN:
-        MAX_LEN = length
+
+    # helper function to handle the logic of counting the
+    # longest web pages
+    count_words(length, url)
+
 
     # only add when we know it was scraped successfully
     global scraped
@@ -264,3 +267,43 @@ def updateLogs():
         s += url + "\n"
     f.write(s)
     f.close()
+
+def count_words(length, url):
+    #global MAX_LEN
+    #if length > MAX_LEN:
+    #    MAX_LEN = length
+    global longest
+    #TODO Fix hardcoded max # to save, currently top 100 longest web pages
+    cap = 200
+    # if below threshold, just add to the list of longest
+    # Can't go over
+    if len(longest) < cap:
+        longest.append((length, url))
+    else:
+        # longest will have at least one val, since >= cap
+        # Need to get length
+        old_max = longest[-1][0]
+
+        # if the old max is bigger, no need to make any changes
+        # just return
+        if old_max >= length:
+            return
+        # Length is at least bigger than the smallest of the top 100
+        longest[-1] = (length, url)
+
+    # List has been changed, need to sort Large -> Small
+    longest = sorted(longest, reverse=True)
+
+    # Once val is either added or not, update .txt file
+    f = open("longest_texts.txt", "w")
+    txt = ""
+    i = 1
+    for link in longest:
+        if i < 10:
+            txt += "0"
+        txt += f"{i}: {link[0]} words - {link[1]}\n"
+        i += 1
+    f.write(txt)
+    f.close()
+    global MAX_LEN
+    MAX_LEN = longest[0][0]
